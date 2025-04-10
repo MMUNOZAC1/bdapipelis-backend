@@ -1,31 +1,31 @@
-// models/Tipo.js
-
 const mongoose = require('mongoose');
 
 const tipoSchema = new mongoose.Schema({
   nombre: {
     type: String,
     required: true,
+    unique: true // ✅ Para evitar duplicados
   },
   estado: {
     type: String,
     enum: ['Activo', 'Inactivo'],
-    required: true,
+    required: true
   },
   descripcion: {
     type: String,
-    required: false,
+    required: false
   },
   fechaCreacion: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   fechaActualizacion: {
     type: Date,
-    default: Date.now,
-  },
+    default: Date.now
+  }
 });
 
+// ✅ Actualiza la fechaActualizacion automáticamente
 tipoSchema.pre('findOneAndUpdate', function (next) {
   this.set({ fechaActualizacion: new Date() });
   next();

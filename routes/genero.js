@@ -4,6 +4,7 @@ const { check, validationResult } = require('express-validator');
 
 const router = express.Router();
 
+// Crear género
 router.post('/', [
   check('nombre', 'nombre inválido').not().isEmpty(),
   check('estado', 'estado inválido').isIn(['Activo', 'Inactivo']),
@@ -24,6 +25,7 @@ router.post('/', [
   }
 });
 
+// Obtener todos los géneros
 router.get('/', async (req, res) => {
   try {
     const generos = await Genero.find();
@@ -34,6 +36,18 @@ router.get('/', async (req, res) => {
   }
 });
 
+// ✅ NUEVA RUTA: Obtener solo los géneros activos
+router.get('/activos', async (req, res) => {
+  try {
+    const generosActivos = await Genero.find({ estado: 'Activo' });
+    res.send(generosActivos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error en el servidor');
+  }
+});
+
+// Actualizar género
 router.put('/:nombre', [
   check('nombre', 'nombre inválido').not().isEmpty(),
   check('estado', 'estado inválido').isIn(['Activo', 'Inactivo']),
@@ -68,6 +82,7 @@ router.put('/:nombre', [
   }
 });
 
+// Eliminar género
 router.delete('/:nombre', async (req, res) => {
   try {
     const generoEliminado = await Genero.findOneAndDelete({ nombre: req.params.nombre });

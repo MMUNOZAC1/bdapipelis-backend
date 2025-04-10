@@ -4,6 +4,7 @@ const { check, validationResult } = require('express-validator');
 
 const router = express.Router();
 
+// Crear nuevo tipo
 router.post('/', [
   check('nombre', 'nombre inválido').not().isEmpty(),
   check('estado', 'estado inválido').isIn(['Activo', 'Inactivo']),
@@ -15,6 +16,12 @@ router.post('/', [
       return res.status(400).json({ message: errors.array() });
     }
 
+    // Verificar si ya existe un tipo con el mismo nombre
+    const existe = await Tipo.findOne({ nombre: req.body.nombre });
+    if (existe) {
+      return res.status(400).json({ message: 'Ya existe un tipo con ese nombre' });
+    }
+
     const tipo = new Tipo(req.body);
     const savedTipo = await tipo.save();
     res.send(savedTipo);
@@ -24,9 +31,10 @@ router.post('/', [
   }
 });
 
+// Obtener todos los tipos
 router.get('/', async (req, res) => {
   try {
-    const tipos = await Tipo.find();
+    const tipos = await Tipo.find(); // o .find({ estado: 'Activo' }) si solo quieres los activos
     res.send(tipos);
   } catch (error) {
     console.error(error);
@@ -34,6 +42,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Actualizar tipo por nombre
 router.put('/:nombre', [
   check('nombre', 'nombre inválido').not().isEmpty(),
   check('estado', 'estado inválido').isIn(['Activo', 'Inactivo']),
@@ -47,13 +56,7 @@ router.put('/:nombre', [
 
     const tipoActualizado = await Tipo.findOneAndUpdate(
       { nombre: req.params.nombre },
-      {
-        $set: {
-          nombre: req.body.nombre,
-          estado: req.body.estado,
-          descripcion: req.body.descripcion,
-        },
-      },
+      { $set: req.body },
       { new: true }
     );
 
@@ -68,6 +71,7 @@ router.put('/:nombre', [
   }
 });
 
+// Eliminar tipo por nombre
 router.delete('/:nombre', async (req, res) => {
   try {
     const tipoEliminado = await Tipo.findOneAndDelete({ nombre: req.params.nombre });

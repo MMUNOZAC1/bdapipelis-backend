@@ -4,6 +4,7 @@ const { check, validationResult } = require('express-validator');
 
 const router = express.Router();
 
+// Crear productora
 router.post('/', [
   check('nombre', 'nombre inválido').not().isEmpty(),
   check('estado', 'estado inválido').isIn(['Activo', 'Inactivo']),
@@ -24,6 +25,7 @@ router.post('/', [
   }
 });
 
+// Obtener todas las productoras
 router.get('/', async (req, res) => {
   try {
     const productoras = await Productora.find();
@@ -34,6 +36,18 @@ router.get('/', async (req, res) => {
   }
 });
 
+// ✅ Nueva ruta: Obtener solo las productoras activas
+router.get('/activos', async (req, res) => {
+  try {
+    const activas = await Productora.find({ estado: 'Activo' });
+    res.json(activas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error en el servidor');
+  }
+});
+
+// Actualizar productora por nombre
 router.put('/:nombre', [
   check('nombre', 'nombre inválido').not().isEmpty(),
   check('estado', 'estado inválido').isIn(['Activo', 'Inactivo']),
@@ -65,6 +79,7 @@ router.put('/:nombre', [
   }
 });
 
+// Eliminar productora por nombre
 router.delete('/:nombre', async (req, res) => {
   try {
     const deleted = await Productora.findOneAndDelete({ nombre: req.params.nombre });

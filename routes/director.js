@@ -4,6 +4,7 @@ const { check, validationResult } = require('express-validator');
 
 const router = express.Router();
 
+// Crear
 router.post('/', [
   check('nombres', 'Nombre inválido').not().isEmpty(),
   check('estado', 'Estado inválido').isIn(['Activo', 'Inactivo'])
@@ -23,6 +24,7 @@ router.post('/', [
   }
 });
 
+// Obtener todos
 router.get('/', async (req, res) => {
   try {
     const directores = await Director.find();
@@ -33,6 +35,18 @@ router.get('/', async (req, res) => {
   }
 });
 
+// ✅ Obtener solo directores activos
+router.get('/activos', async (req, res) => {
+  try {
+    const directoresActivos = await Director.find({ estado: 'Activo' });
+    res.json(directoresActivos);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error en el servidor');
+  }
+});
+
+// Actualizar
 router.put('/:id', [
   check('nombres', 'Nombre inválido').not().isEmpty(),
   check('estado', 'Estado inválido').isIn(['Activo', 'Inactivo']),
